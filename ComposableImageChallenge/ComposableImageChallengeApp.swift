@@ -1,9 +1,4 @@
-//
-//  ComposableImageChallengeApp.swift
-//  ComposableImageChallenge
-//
-//  Created by Matt Johnson on 8/30/22.
-//
+
 
 import SwiftUI
 
@@ -15,3 +10,4 @@ struct ComposableImageChallengeApp: App {
         }
     }
 }
+
