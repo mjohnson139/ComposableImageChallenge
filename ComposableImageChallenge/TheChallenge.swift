@@ -29,7 +29,6 @@ struct ComposableImage<Content>: View where Content: View {
         @ViewBuilder content: @escaping (Image) -> I,
         @ViewBuilder placeHolder: @escaping () -> P
     ) where Content == _ConditionalContent<I, P>, I: View, P: View {
-        print(url ?? "no url")
         model = Model(url: url)
         contentBuilder = { image in
             if let image = image {
@@ -61,14 +60,10 @@ private extension ComposableImage {
                         .dataTaskPublisher(for: url)
                 }
                 .map(\.data)
-                .tryMap { data in
-                    UIImage(data: data)
-                }
+                .tryMap(UIImage.init(data:))
                 .compactMap { $0 }
                 .map(Image.init(uiImage:))
                 .catch { _ in Just(nil) }
-                .eraseToAnyPublisher()
-                .print()
                 .assign(to: &$image)
                 
         }
