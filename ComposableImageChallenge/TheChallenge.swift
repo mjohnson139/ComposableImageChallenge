@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 /**
  The goal is to make a “composable” image.  This is a knockoff of AsyncImage without the iOS 15 constraint.
  
@@ -17,15 +18,54 @@ import SwiftUI
  This message will self destruct in 10 seconds. 
  
  */
-
-struct ComposableImage<Content>: View where Content: View {
+public struct ComposableImage<Content>: View where Content: View {
+    @ObservedObject private var model: ComposableImage.Model
+    private var contentBuilder: (Image?) -> Content
+    private var cancellables = Set<AnyCancellable>()
+    
     public init<I, P>(
         url: URL?,
         @ViewBuilder content: @escaping (Image) -> I,
         @ViewBuilder placeHolder: @escaping () -> P
-    ) where Content == _ConditionalContent<I, P>, I: View, P: View {}
+    ) where Content == _ConditionalContent<I, P>, I: View, P: View {
+        model = Model(url: url)
+        contentBuilder = { image in
+            if let image = image {
+                return ViewBuilder.buildEither(first: content(image))
+            } else {
+                return ViewBuilder.buildEither(second: placeHolder())
+            }
+        }
+    }
+    
+    public var body: some View {
+        contentBuilder(self.model.image)
+    }
+}
 
-    var body: some View {
-        Text("Unimplemented")
+private extension ComposableImage {
+    class Model: ObservableObject {
+        @Published private(set) var image: Image? = nil
+        
+        init(url: URL?) {
+            imageSubscription(url: url)
+        }
+        
+        func imageSubscription(url: URL?) {
+            if #available(iOS 14.0, *) {
+                Just(url)
+                    .compactMap { $0 }
+                    .flatMap(URLSession.shared.dataTaskPublisher(for:))
+                    .map(\.data)
+                    .tryMap(UIImage.init(data:))
+                    .compactMap { $0 }
+                    .map(Image.init(uiImage:))
+                    .catch { _ in Empty() }
+                    .receive(on: DispatchQueue.main)
+                    .assign(to: &$image)
+            } else {
+                print("Update your app dawg")
+            }
+        }
     }
 }
