@@ -1,6 +1,6 @@
 import SwiftUI
 /**
- The goal is to make a “composable” image, that basically acts just like AsyncImage and doesn’t have the iOS 15 constraint.
+ The goal is to make a “composable” image.  This is a knockoff of AsyncImage without the iOS 15 constraint.
  
  Implement the following  data type.
  
@@ -9,10 +9,10 @@ import SwiftUI
     2) a function that takes and image, and builds a view using that image
     3) a function that builds a placeholder view for when the image is not present.
  
- The initializer in The Composable architecture for the IfLetStore is very similar to what we want here, in that
- we need a ViewBuilder that builds two different pieces of content, depending on the state of the image that is fetched from the url.
+ The initializer in The Composable architecture for the IfLetStore is very similar to what we want here.
+ We need a ViewBuilder that builds two different pieces of content, depending on the state of the image that is fetched from the url.
  
- The solution should have use combine to publish the image when it becomes available.
+ The solution should  use combine to publish the image when it becomes available.
  
  This message will self destruct in 10 seconds. 
  
